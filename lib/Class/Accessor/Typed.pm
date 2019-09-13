@@ -39,7 +39,6 @@ sub import {
                         _get_does_type_constraint($rule->{does});
                     }
                 };
-
                 $args{$key}->{$n} = $rule;
                 $rules{$n}        = $rule;
             }
