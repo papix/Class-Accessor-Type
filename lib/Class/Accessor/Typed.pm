@@ -214,6 +214,48 @@ Class::Accessor::Typed - Class::Accessor::Lite with Type
 
 Class::Accessor::Typed is variant of C<Class::Accessor::Lite>. It supports argument validation like C<Smart::Args>.
 
+=head1 THE USE STATEMENT
+
+The use statement of the module takes a single hash.
+An arguments specifies the read/write type (rw, ro, wo) and setting of properties.
+Setting of property is defined by hash reference that specifies property name as key and property rule as value.
+
+    use Class::Accessor::Typed (
+        rw => { # read/write type
+            baz => 'Int', # property name => property rule
+        },
+    );
+
+=over 4
+
+=item new => $true_of_false
+
+If value evaluates to true, the default constructor is created.
+
+=item rw => \%name_and_option_of_the_properties
+
+create a read / write accessor.
+
+=item ro => \%name_and_option_of_the_properties
+
+create a read-only accessor.
+
+=item wo => \%name_and_option_of_the_properties
+
+create a write-only accessor.
+
+=back
+
+=head2 PROPERTY RULE
+
+Property rule can receive string of type name (e.g. C<Int>) or hash reference (with C<isa>/C<does> and C<default>).
+
+=head1 SEE ALSO
+
+L<Class::Accessor::Lite>
+
+L<Smart::Args>
+
 =head1 LICENSE
 
 Copyright (C) papix.
