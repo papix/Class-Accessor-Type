@@ -14,9 +14,11 @@ our $VERSION = "0.01";
 our $VERBOSE = 1;
 
 my %key_ctor = (
-    rw => \&_mk_accessors,
-    ro => \&_mk_ro_accessors,
-    wo => \&_mk_wo_accessors,
+    rw      => \&_mk_accessors,
+    ro      => \&_mk_ro_accessors,
+    wo      => \&_mk_wo_accessors,
+    rw_lazy => \&_mk_lazy_accessors,
+    ro_lazy => \&_mk_ro_lazy_accessors,
 );
 
 sub import {
@@ -39,6 +41,8 @@ sub import {
                         _get_does_type_constraint($rule->{does});
                     }
                 };
+                $rule->{lazy} = ($key eq 'rw_lazy' or $key eq 'ro_lazy') ? 1 : 0;
+
                 $args{$key}->{$n} = $rule;
                 $rules{$n}        = $rule;
             }
@@ -67,17 +71,6 @@ sub _mk_accessors {
     }
 }
 
-sub _mk_rw_accessors {
-    my $pkg = shift;
-    no strict 'refs';
-
-    while (@_) {
-        my $n = shift;
-        my $rule = shift;
-        *{$pkg . '::' . $n} = __m($pkg, $n, $rule->{type});
-    }
-}
-
 sub _mk_ro_accessors {
     my $pkg = shift;
     no strict 'refs';
@@ -100,6 +93,29 @@ sub _mk_wo_accessors {
     }
 }
 
+sub _mk_lazy_accessors {
+    my $pkg = shift;
+    no strict 'refs';
+
+    while (@_) {
+        my $n = shift;
+        my $rule = shift;
+        my $builder = $rule->{builder} || "_build_$n";
+        *{$pkg . '::' . $n} = __m_lazy($n, $rule->{type}, $builder);
+    }
+}
+
+sub _mk_ro_lazy_accessors {
+    my $pkg = shift;
+    no strict 'refs';
+
+    while (@_) {
+        my $n = shift;
+        my $rule = shift;
+        my $builder = $rule->{builder} || "_build_$n";
+        *{$pkg . '::' . $n} = __m_ro_lazy($pkg, $n, $rule->{type}, $builder);
+    }
+}
 
 sub __m_new {
     my $pkg = shift;
@@ -111,6 +127,7 @@ sub __m_new {
         my %params;
 
         for my $n (sort keys %rules) {
+            next if $rules{$n}->{lazy};
             if (! exists $args{$n}) {
                 if ($rules{$n}->{default}) {
                     $args{$n} = $rules{$n}->{default};
@@ -153,6 +170,32 @@ sub __m_wo {
 
     sub {
         return $_[0]->{$n} = _check($n, $type, $_[1]) if @_ == 2;
+        my $caller = caller(0);
+        error("'$caller' cannot alter the value of '$n' on objects of class '$pkg'");
+    };
+}
+
+sub __m_lazy {
+    my ($n, $type, $builder) = @_;
+
+    sub {
+        if (@_ == 1) {
+            return $_[0]->{$n} if exists $_[0]->{$n};
+            return $_[0]->{$n} = _check($n, $type, $_[0]->$builder);
+        } elsif (@_ == 2) {
+            return $_[0]->{$n} = _check($n, $type, $_[1]);
+        }
+    };
+}
+
+sub __m_ro_lazy {
+    my ($pkg, $n, $type, $builder) = @_;
+
+    sub {
+        if (@_ == 1) {
+            return $_[0]->{$n} if exists $_[0]->{$n};
+            return $_[0]->{$n} = _check($n, $type, $_[0]->$builder);
+        }
         my $caller = caller(0);
         error("'$caller' cannot alter the value of '$n' on objects of class '$pkg'");
     };
