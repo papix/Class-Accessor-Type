@@ -250,8 +250,17 @@ Class::Accessor::Typed - Class::Accessor::Lite with Type
         wo => {
             hoge => 'Int',
         },
+        rw_lazy => {
+            foo_lazy => 'Str',
+        }
+        ro_lazy => {
+            bar_lazy => { isa => 'Int', builder => 'bar_lazy_builder' },
+        }
         new => 1,
     );
+
+    sub _build_foo_lazy  { 'string' }
+    sub bar_lazy_builder { 'string' }
 
 =head1 DESCRIPTION
 
@@ -287,11 +296,20 @@ create a read-only accessor.
 
 create a write-only accessor.
 
+=item rw_lazy => \%name_and_option_of_the_properties
+
+create a read / write lazy accessor.
+
+=item ro_lazy => \%name_and_option_of_the_properties
+
+create a read-only lazy accessor.
+
 =back
 
 =head2 PROPERTY RULE
 
-Property rule can receive string of type name (e.g. C<Int>) or hash reference (with C<isa>/C<does> and C<default>).
+Property rule can receive string of type name (e.g. C<Int>) or hash reference (with C<isa>/C<does>, C<default> and C<builder>).
+C<default> can only use on C<rw>, C<ro> and C<wo>, and C<builder> can only use on C<rw_lazy> and C<ro_lazy>.
 
 =head1 SEE ALSO
 
