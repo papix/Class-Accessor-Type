@@ -127,8 +127,8 @@ sub __m_new {
         my %params;
 
         for my $n (sort keys %rules) {
-            next if $rules{$n}->{lazy};
             if (! exists $args{$n}) {
+                next if $rules{$n}->{lazy};
                 if ($rules{$n}->{default}) {
                     $args{$n} = $rules{$n}->{default};
                 } else {
