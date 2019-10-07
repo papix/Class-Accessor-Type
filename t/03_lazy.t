@@ -38,7 +38,7 @@ subtest 'new' => sub {
     isa_ok $obj, 'L';
 };
 
-subtest 'getter' => sub {
+subtest 'getter (1)' => sub {
     my $obj = L->new();
 
     ok ! exists $obj->{rw1};
@@ -64,6 +64,50 @@ subtest 'getter' => sub {
     throws_ok {
         $obj->ro4;
     } qr/'ro4': Validation failed for 'Int' with value undef/;
+};
+
+subtest 'getter (2)' => sub {
+    my $obj = L->new(
+        rw1 => 'rw1',
+        rw2 => 'rw2',
+        rw3 => 1,
+        rw4 => 2,
+        ro1 => 'ro1',
+        ro2 => 'ro2',
+        ro3 => 3,
+        ro4 => 4,
+    );
+
+    ok exists $obj->{rw1};
+    ok exists $obj->{rw2};
+    ok exists $obj->{rw3};
+    ok exists $obj->{rw4};
+
+    is $obj->rw1, 'rw1';
+    is $obj->rw2, 'rw2';
+    is $obj->rw3, 1;
+    is $obj->rw4, 2;
+
+    ok exists $obj->{ro1};
+    ok exists $obj->{ro2};
+    ok exists $obj->{ro3};
+    ok exists $obj->{ro4};
+
+    is $obj->ro1, 'ro1';
+    is $obj->ro2, 'ro2';
+    is $obj->ro3, 3;
+    is $obj->ro4, 4;
+};
+
+subtest 'setter' => sub {
+    my $obj = L->new();
+
+    $obj->rw1('rw');
+    is $obj->rw1, 'rw';
+
+    throws_ok {
+        $obj->rw2(undef);
+    } qr/'rw2': Validation failed for 'Str' with value undef/;
 };
 
 done_testing;
