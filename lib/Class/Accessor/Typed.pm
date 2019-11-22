@@ -258,7 +258,6 @@ Class::Accessor::Typed - Class::Accessor::Lite with Type
         ro_lazy => {
             bar_lazy => { isa => 'Int', builder => 'bar_lazy_builder' },
         }
-        new => 1,
     );
 
     sub _build_foo_lazy  { 'string' }
@@ -284,7 +283,8 @@ Setting of property is defined by hash reference that specifies property name as
 
 =item new => $true_of_false
 
-If value evaluates to true, the default constructor is created.
+If value evaluates to false, the default constructor is not created.
+The other cases, Class::Accessor::Typed provides the default constructor automatically.
 
 =item rw => \%name_and_option_of_the_properties
 
