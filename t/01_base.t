@@ -21,6 +21,17 @@ use Test::Exception;
         },
     );
 }
+{
+    package
+        M;
+
+    use Class::Accessor::Typed (
+        rw => {
+            rw  => 'Str',
+        },
+        new => 0,
+    );
+}
 
 subtest 'new' => sub {
     my $obj = L->new(
@@ -84,6 +95,12 @@ subtest 'new' => sub {
         like $warn, qr/unknown arguments: unknown/;
         isa_ok $obj, 'L';
         ok ! exists $obj->{unknown};
+    };
+
+    subtest 'disable new option' => sub {
+        throws_ok {
+            M->new(rw => 'RW');
+        } qr/Can't locate object method "new" via package "M"/;
     };
 };
 
