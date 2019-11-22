@@ -69,7 +69,7 @@ sub _mk_accessors {
     while (@_) {
         my $n = shift;
         my $rule = shift;
-        *{$pkg . '::' . $n} = __m($n, $rule->{type});
+        *{$pkg . '::' . $n} = __m($n, $rule);
     }
 }
 
@@ -91,7 +91,7 @@ sub _mk_wo_accessors {
     while (@_) {
         my $n = shift;
         my $rule = shift;
-        *{$pkg . '::' . $n} = __m_wo($pkg, $n, $rule->{type});
+        *{$pkg . '::' . $n} = __m_wo($pkg, $n, $rule);
     }
 }
 
@@ -103,7 +103,7 @@ sub _mk_lazy_accessors {
         my $n = shift;
         my $rule = shift;
         my $builder = $rule->{builder} || "_build_$n";
-        *{$pkg . '::' . $n} = __m_lazy($n, $rule->{type}, $builder);
+        *{$pkg . '::' . $n} = __m_lazy($n, $rule, $builder);
     }
 }
 
@@ -115,7 +115,7 @@ sub _mk_ro_lazy_accessors {
         my $n = shift;
         my $rule = shift;
         my $builder = $rule->{builder} || "_build_$n";
-        *{$pkg . '::' . $n} = __m_ro_lazy($pkg, $n, $rule->{type}, $builder);
+        *{$pkg . '::' . $n} = __m_ro_lazy($pkg, $n, $rule, $builder);
     }
 }
 
@@ -137,7 +137,7 @@ sub __m_new {
                     error("missing mandatory parameter named '\$$n'");
                 }
             }
-            $params{$n} = _check($n, $rules{$n}->{type}, $args{$n});
+            $params{$n} = _check($n, $rules{$n}, $args{$n});
         }
 
         if (keys %args > keys %rules) {
@@ -149,11 +149,11 @@ sub __m_new {
 }
 
 sub __m {
-    my ($n, $type) = @_;
+    my ($n, $rule) = @_;
 
     sub {
         return $_[0]->{$n} if @_ == 1;
-        return $_[0]->{$n} = _check($n, $type, $_[1]) if @_ == 2;
+        return $_[0]->{$n} = _check($n, $rule, $_[1]) if @_ == 2;
     };
 }
 
@@ -168,35 +168,35 @@ sub __m_ro {
 }
 
 sub __m_wo {
-    my ($pkg, $n, $type) = @_;
+    my ($pkg, $n, $rule) = @_;
 
     sub {
-        return $_[0]->{$n} = _check($n, $type, $_[1]) if @_ == 2;
+        return $_[0]->{$n} = _check($n, $rule, $_[1]) if @_ == 2;
         my $caller = caller(0);
         error("'$caller' cannot alter the value of '$n' on objects of class '$pkg'");
     };
 }
 
 sub __m_lazy {
-    my ($n, $type, $builder) = @_;
+    my ($n, $rule, $builder) = @_;
 
     sub {
         if (@_ == 1) {
             return $_[0]->{$n} if exists $_[0]->{$n};
-            return $_[0]->{$n} = _check($n, $type, $_[0]->$builder);
+            return $_[0]->{$n} = _check($n, $rule, $_[0]->$builder);
         } elsif (@_ == 2) {
-            return $_[0]->{$n} = _check($n, $type, $_[1]);
+            return $_[0]->{$n} = _check($n, $rule, $_[1]);
         }
     };
 }
 
 sub __m_ro_lazy {
-    my ($pkg, $n, $type, $builder) = @_;
+    my ($pkg, $n, $rule, $builder) = @_;
 
     sub {
         if (@_ == 1) {
             return $_[0]->{$n} if exists $_[0]->{$n};
-            return $_[0]->{$n} = _check($n, $type, $_[0]->$builder);
+            return $_[0]->{$n} = _check($n, $rule, $_[0]->$builder);
         }
         my $caller = caller(0);
         error("'$caller' cannot alter the value of '$n' on objects of class '$pkg'");
@@ -205,8 +205,10 @@ sub __m_ro_lazy {
 
 sub _check {
     my $n = shift;
-    my $type = shift;
+    my $rule = shift;
     my $value = shift;
+
+    my $type = $rule->{type};
 
     return $value unless defined $type;
     return $value if $type->check($value);
