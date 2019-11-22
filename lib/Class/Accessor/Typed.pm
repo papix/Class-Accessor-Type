@@ -212,9 +212,13 @@ sub _check {
 
     return $value unless defined $type;
     return $value if $type->check($value);
+    if (defined $rule->{inflate}) {
+        my $inflated_value = $rule->{inflate}->($value);
+        return $inflated_value if $type->check($inflated_value);
+    }
     if ($type->has_coercion) {
-        $value = $type->coerce($value);
-        return $value if $type->check($value);
+        my $coerced_value = $type->coerce($value);
+        return $coerced_value if $type->check($coerced_value);
     }
 
     error("'$n': " . $type->get_message($value));
