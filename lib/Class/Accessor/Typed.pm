@@ -42,6 +42,9 @@ sub import {
                     }
                 };
                 $rule->{lazy} = ($key eq 'rw_lazy' or $key eq 'ro_lazy') ? 1 : 0;
+                if (defined $rule->{inflate} && ref $rule->{inflate} ne 'CODE') {
+                    error("'$n': inflate option must be code reference");
+                }
 
                 $args{$key}->{$n} = $rule;
                 $rules{$n}        = $rule;
