@@ -49,7 +49,9 @@ sub import {
             $key_ctor{$key}->($pkg, %{$args{$key}});
         }
     }
-    _mk_new($pkg, %rules) if $args{new};
+    return 1 if exists $args{new} && !$args{new};
+
+    _mk_new($pkg, %rules);
     return 1;
 }
 

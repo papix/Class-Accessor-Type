@@ -19,7 +19,6 @@ use Test::Exception;
         wo => {
             wo => 'Int',
         },
-        new => 1,
     );
 }
 
