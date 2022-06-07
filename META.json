@@ -4,7 +4,7 @@
       "papix <mail@papix.net>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Minilla/v3.1.6, CPAN::Meta::Converter version 2.150010",
+   "generated_by" : "Minilla/v3.1.12, CPAN::Meta::Converter version 2.150010",
    "license" : [
       "perl_5"
    ],
@@ -66,8 +66,11 @@
          "web" : "https://github.com/papix/Class-Accessor-Typed"
       }
    },
-   "version" : "0.02",
+   "version" : "0.03",
    "x_authority" : "cpan:PAPIX",
-   "x_serialization_backend" : "JSON::PP version 4.02",
+   "x_contributors" : [
+      "papix <papix@hatena.ne.jp>"
+   ],
+   "x_serialization_backend" : "JSON::PP version 4.04",
    "x_static_install" : 1
 }

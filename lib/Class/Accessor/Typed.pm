@@ -6,7 +6,7 @@ use warnings;
 use Carp;
 use Mouse::Util::TypeConstraints ();
 
-our $VERSION = "0.02";
+our $VERSION = "0.03";
 
 *_get_isa_type_constraint  = \&Mouse::Util::TypeConstraints::find_or_create_isa_type_constraint;
 *_get_does_type_constraint = \&Mouse::Util::TypeConstraints::find_or_create_does_type_constraint;

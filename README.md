@@ -72,14 +72,14 @@ Setting of property is defined by hash reference that specifies property name as
 
 ## PROPERTY RULE
 
-Property rule can receive string of type name (e.g. `Int`) or hash reference (with `isa`/`does`, `default` and `builder`).
+Property rule can receive string of type name (e.g. `Int`) or hash reference (with `isa`/`does`, `default`, `optional` and `builder`).
 `default` can only use on `rw`, `ro` and `wo`, and `builder` can only use on `rw_lazy` and `ro_lazy`.
 
 # SEE ALSO
 
-[Class::Accessor::Lite](https://metacpan.org/pod/Class::Accessor::Lite)
+[Class::Accessor::Lite](https://metacpan.org/pod/Class%3A%3AAccessor%3A%3ALite)
 
-[Smart::Args](https://metacpan.org/pod/Smart::Args)
+[Smart::Args](https://metacpan.org/pod/Smart%3A%3AArgs)
 
 # LICENSE
 
