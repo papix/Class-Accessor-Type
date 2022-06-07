@@ -2,6 +2,8 @@ Revision history for Perl extension Class-Accessor-Typed
 
 {{$NEXT}}
 
+    - support optional
+
 0.02 2019-10-17T14:14:18Z
 
     - support rw_lazy and ro_lazy

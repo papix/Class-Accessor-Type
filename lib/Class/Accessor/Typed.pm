@@ -26,11 +26,12 @@ sub import {
     my $pkg = caller(0);
 
     my %rules;
+
     for my $key (sort keys %key_ctor) {
         if (defined $args{$key}) {
             croak("value of the '$key' parameter should be an hashref") unless ref($args{$key}) eq 'HASH';
 
-            for my $n (sort keys %{$args{$key}}) {
+            for my $n (sort keys %{ $args{$key} }) {
                 my $rule = ref($args{$key}->{$n}) eq 'HASH'
                     ? $args{$key}->{$n} : { isa => $args{$key}->{$n} };
 
@@ -44,9 +45,9 @@ sub import {
                 $rule->{lazy} = ($key eq 'rw_lazy' or $key eq 'ro_lazy') ? 1 : 0;
 
                 $args{$key}->{$n} = $rule;
-                $rules{$n}        = $rule;
+                $rules{$n} = $rule;
             }
-            $key_ctor{$key}->($pkg, %{$args{$key}});
+            $key_ctor{$key}->($pkg, %{ $args{$key} });
         }
     }
     return 1 if exists $args{new} && !$args{new};
@@ -59,7 +60,7 @@ sub _mk_new {
     my $pkg = shift;
     no strict 'refs';
 
-    *{$pkg . '::new'} = __m_new($pkg, @_);
+    *{ $pkg . '::new' } = __m_new($pkg, @_);
 }
 
 sub _mk_accessors {
@@ -67,9 +68,9 @@ sub _mk_accessors {
     no strict 'refs';
 
     while (@_) {
-        my $n = shift;
+        my $n    = shift;
         my $rule = shift;
-        *{$pkg . '::' . $n} = __m($n, $rule->{type});
+        *{ $pkg . '::' . $n } = __m($n, $rule->{type});
     }
 }
 
@@ -78,9 +79,9 @@ sub _mk_ro_accessors {
     no strict 'refs';
 
     while (@_) {
-        my $n = shift;
+        my $n    = shift;
         my $rule = shift;
-        *{$pkg . '::' . $n} = __m_ro($pkg, $n);
+        *{ $pkg . '::' . $n } = __m_ro($pkg, $n);
     }
 }
 
@@ -89,9 +90,9 @@ sub _mk_wo_accessors {
     no strict 'refs';
 
     while (@_) {
-        my $n = shift;
+        my $n    = shift;
         my $rule = shift;
-        *{$pkg . '::' . $n} = __m_wo($pkg, $n, $rule->{type});
+        *{ $pkg . '::' . $n } = __m_wo($pkg, $n, $rule->{type});
     }
 }
 
@@ -100,10 +101,10 @@ sub _mk_lazy_accessors {
     no strict 'refs';
 
     while (@_) {
-        my $n = shift;
-        my $rule = shift;
+        my $n       = shift;
+        my $rule    = shift;
         my $builder = $rule->{builder} || "_build_$n";
-        *{$pkg . '::' . $n} = __m_lazy($n, $rule->{type}, $builder);
+        *{ $pkg . '::' . $n } = __m_lazy($n, $rule->{type}, $builder);
     }
 }
 
@@ -112,27 +113,30 @@ sub _mk_ro_lazy_accessors {
     no strict 'refs';
 
     while (@_) {
-        my $n = shift;
-        my $rule = shift;
+        my $n       = shift;
+        my $rule    = shift;
         my $builder = $rule->{builder} || "_build_$n";
-        *{$pkg . '::' . $n} = __m_ro_lazy($pkg, $n, $rule->{type}, $builder);
+        *{ $pkg . '::' . $n } = __m_ro_lazy($pkg, $n, $rule->{type}, $builder);
     }
 }
 
 sub __m_new {
-    my $pkg = shift;
+    my $pkg   = shift;
     my %rules = @_;
     no strict 'refs';
     return sub {
         my $klass = shift;
-        my %args = (@_ == 1 && ref($_[0]) eq 'HASH' ? %{$_[0]} : @_);
+        my %args  = (@_ == 1 && ref($_[0]) eq 'HASH' ? %{ $_[0] } : @_);
         my %params;
 
         for my $n (sort keys %rules) {
-            if (! exists $args{$n}) {
+            if (!exists $args{$n}) {
                 next if $rules{$n}->{lazy};
+
                 if ($rules{$n}->{default}) {
                     $args{$n} = $rules{$n}->{default};
+                } elsif ($rules{$n}->{optional}) {
+                    next;
                 } else {
                     error("missing mandatory parameter named '\$$n'");
                 }
@@ -142,7 +146,7 @@ sub __m_new {
 
         if (keys %args > keys %rules) {
             my $message = 'unknown arguments: ' . join ', ', sort grep { not exists $rules{$_} } keys %args;
-            warnings::warn( void => $message );
+            warnings::warn(void => $message);
         }
         bless \%params, $klass;
     };
@@ -152,7 +156,7 @@ sub __m {
     my ($n, $type) = @_;
 
     sub {
-        return $_[0]->{$n} if @_ == 1;
+        return $_[0]->{$n}                            if @_ == 1;
         return $_[0]->{$n} = _check($n, $type, $_[1]) if @_ == 2;
     };
 }
@@ -204,12 +208,13 @@ sub __m_ro_lazy {
 }
 
 sub _check {
-    my $n = shift;
-    my $type = shift;
+    my $n     = shift;
+    my $type  = shift;
     my $value = shift;
 
     return $value unless defined $type;
     return $value if $type->check($value);
+
     if ($type->has_coercion) {
         $value = $type->coerce($value);
         return $value if $type->check($value);
@@ -310,7 +315,7 @@ create a read-only lazy accessor.
 
 =head2 PROPERTY RULE
 
-Property rule can receive string of type name (e.g. C<Int>) or hash reference (with C<isa>/C<does>, C<default> and C<builder>).
+Property rule can receive string of type name (e.g. C<Int>) or hash reference (with C<isa>/C<does>, C<default>, C<optional> and C<builder>).
 C<default> can only use on C<rw>, C<ro> and C<wo>, and C<builder> can only use on C<rw_lazy> and C<ro_lazy>.
 
 =head1 SEE ALSO
