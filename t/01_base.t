@@ -93,6 +93,10 @@ subtest 'new' => sub {
         is $obj1->rw1, 'RW1';
         is $obj1->rw2, 123;
 
+        throws_ok {
+            N->new(rw1 => 'RW1', rw2 => 'RW2');
+        } qr/'rw2': Validation failed for 'Int' with value RW2/;
+
         my $obj2 = N->new(rw1 => 'RW1');
         is $obj2->rw1, 'RW1';
         is $obj2->rw2, undef;
