@@ -4,14 +4,12 @@ use strict;
 use warnings;
 
 use Carp;
-use Mouse::Util::TypeConstraints ();
+use Module::Load qw( load );
 
 our $VERSION = "0.03";
-
-*_get_isa_type_constraint  = \&Mouse::Util::TypeConstraints::find_or_create_isa_type_constraint;
-*_get_does_type_constraint = \&Mouse::Util::TypeConstraints::find_or_create_does_type_constraint;
-
 our $VERBOSE = 1;
+
+our $TYPE_CLASS = 'Class::Accessor::Typed::Mouse';
 
 my %key_ctor = (
     rw      => \&_mk_accessors,
@@ -27,6 +25,11 @@ sub import {
 
     my %rules;
 
+    if (exists $args{type}) {
+        $TYPE_CLASS = 'Class::Accessor::Typed::' . $args{type};
+    }
+    load($TYPE_CLASS);
+
     for my $key (sort keys %key_ctor) {
         if (defined $args{$key}) {
             croak("value of the '$key' parameter should be an hashref") unless ref($args{$key}) eq 'HASH';
@@ -37,9 +40,9 @@ sub import {
 
                 $rule->{type} = do {
                     if (defined $rule->{isa}) {
-                        _get_isa_type_constraint($rule->{isa});
+                        $TYPE_CLASS->type($rule->{isa});
                     } elsif (defined $rule->{does}) {
-                        _get_does_type_constraint($rule->{does});
+                        $TYPE_CLASS->type_role($rule->{isa});
                     }
                 };
                 $rule->{lazy} = ($key eq 'rw_lazy' or $key eq 'ro_lazy') ? 1 : 0;
