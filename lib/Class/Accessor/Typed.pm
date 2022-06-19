@@ -6,8 +6,6 @@ use warnings;
 use Carp;
 use Module::Load qw( load );
 
-use Class::Accessor::Typed::Mouse;
-
 our $VERSION = "0.03";
 our $VERBOSE = 1;
 
@@ -29,8 +27,8 @@ sub import {
 
     if (exists $args{type}) {
         $TYPE_CLASS = 'Class::Accessor::Typed::' . $args{type};
-        load($TYPE_CLASS);
     }
+    load($TYPE_CLASS);
 
     for my $key (sort keys %key_ctor) {
         if (defined $args{$key}) {
