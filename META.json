@@ -43,6 +43,7 @@
       "runtime" : {
          "requires" : {
             "Carp" : "0",
+            "Module::Load" : "0",
             "Mouse::Util::TypeConstraints" : "0",
             "perl" : "5.008001"
          }

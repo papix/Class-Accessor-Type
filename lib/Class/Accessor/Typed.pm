@@ -6,7 +6,7 @@ use warnings;
 use Carp;
 use Module::Load qw( load );
 
-our $VERSION = "0.03";
+our $VERSION = "0.03_01";
 our $VERBOSE = 1;
 
 our $TYPE_CLASS = 'Class::Accessor::Typed::Mouse';
