@@ -2,6 +2,8 @@ Revision history for Perl extension Class-Accessor-Typed
 
 {{$NEXT}}
 
+0.03_02 2022-06-21T01:18:19Z
+
     - fix test
 
 0.03_01 2022-06-19T03:56:51Z

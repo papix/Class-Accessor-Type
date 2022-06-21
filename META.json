@@ -67,7 +67,7 @@
          "web" : "https://github.com/papix/Class-Accessor-Typed"
       }
    },
-   "version" : "0.03_01",
+   "version" : "0.03_02",
    "x_authority" : "cpan:PAPIX",
    "x_contributors" : [
       "papix <papix@hatena.ne.jp>"
